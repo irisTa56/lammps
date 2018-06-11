@@ -217,9 +217,10 @@ void PairDPDTrans::allocate()
   memory->create(sigma,n+1,n+1,"pair:sigma");
   memory->create(sigma_trans,n+1,n+1,"pair:sigma_trans");
   for (i = 0; i <= atom->ntypes; i++)
-    for (j = 0; j <= atom->ntypes; j++)
+    for (j = 0; j <= atom->ntypes; j++) {
       gamma_trans[i][j] = gamma[i][j] = 0.0;
       sigma_trans[i][j] = sigma[i][j] = 0.0;
+    }
 }
 
 /* ----------------------------------------------------------------------
