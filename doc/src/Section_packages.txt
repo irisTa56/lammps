@@ -51,8 +51,7 @@ technical questions about compiling the package. If you have problems
 using a feature provided in a user package, you may need to contact
 the contributor directly to get help.  Information on how to submit
 additions you make to LAMMPS as single files or as a standard or user
-package are given in "this section"_Section_modify.html#mod_15 of the
-manual.
+package are given in the "Modify contribute"_Modify.html doc page.
 
 Following the next two tables is a sub-section for each package.  It
 lists authors (if applicable) and summarizes the package contents.  It
@@ -114,6 +113,7 @@ Package, Description, Doc page, Example, Library
 "RIGID"_#RIGID, rigid bodies and constraints, "fix rigid"_fix_rigid.html, rigid, -
 "SHOCK"_#SHOCK, shock loading methods, "fix msst"_fix_msst.html, -, -
 "SNAP"_#SNAP, quantum-fitted potential, "pair_style snap"_pair_snap.html, snap, -
+"SPIN"_#SPIN, magnetic atomic spin dynamics, "Section 6.6.28"_Section_howto.html#howto_28, SPIN, -
 "SRD"_#SRD, stochastic rotation dynamics, "fix srd"_fix_srd.html, srd, -
 "VORONOI"_#VORONOI, Voronoi tesselation, "compute voronoi/atom"_compute_voronoi_atom.html, -, ext :tb(ea=c,ca1=l)
 
@@ -1178,10 +1178,10 @@ PYTHON package :link(PYTHON),h4
 
 A "python"_python.html command which allow you to execute Python code
 from a LAMMPS input script.  The code can be in a separate file or
-embedded in the input script itself.  See "Section
-11.2"_Section_python.html#py_2 for an overview of using Python from
-LAMMPS in this manner and the entire section for other ways to use
-LAMMPS and Python together.
+embedded in the input script itself.  See the "Python
+call"_Python_call.html doc page for an overview of using Python from
+LAMMPS in this manner and the "Python"_Python.html doc page for other
+ways to use LAMMPS and Python together.
 
 [Install or un-install:]
 
@@ -1202,7 +1202,7 @@ to Makefile.lammps) if the LAMMPS build fails.
 [Supporting info:]
 
 src/PYTHON: filenames -> commands
-"Section 11"_Section_python.html
+"Python call"_Python_call.html
 lib/python/README
 examples/python :ul
 
@@ -1412,6 +1412,38 @@ src/SNAP: filenames -> commands
 "compute snad/atom"_compute_sna_atom.html
 "compute snav/atom"_compute_sna_atom.html
 examples/snap :ul
+
+:line
+
+SPIN package :link(SPIN),h4
+
+[Contents:]
+
+Model atomic magnetic spins classically, coupled to atoms moving in
+the usual manner via MD.  Various pair, fix, and compute styles.
+
+[Author:] Julian Tranchida (Sandia).
+
+[Install or un-install:]
+
+make yes-spin
+make machine :pre
+
+make no-spin
+make machine :pre
+
+[Supporting info:]
+
+src/SPIN: filenames -> commands
+"Section 6.28"_Section_howto.html#howto_28
+"pair_style spin/dmi"_pair_spin_dmi.html
+"pair_style spin/exchange"_pair_spin_exchange.html
+"pair_style spin/magelec"_pair_spin_magelec.html
+"pair_style spin/neel"_pair_spin_neel.html
+"fix nve/spin"_fix_nve_spin.html
+"fix precession/spin"_fix_precession_spin.html
+"compute spin"_compute_spin.html
+examples/SPIN :ul
 
 :line
 
