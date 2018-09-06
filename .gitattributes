@@ -1,0 +1,4 @@
+src/pair_dpd_trans_tstat.cpp merge=ours
+src/pair_dpd_trans_tstat.h merge=ours
+src/pair_dpd_trans.cpp merge=ours
+src/pair_dpd_trans.h merge=ours
