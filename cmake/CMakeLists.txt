@@ -168,7 +168,7 @@ set(DEFAULT_PACKAGES ASPHERE BODY CLASS2 COLLOID COMPRESS DIPOLE GRANULAR
   SRD KIM PYTHON MSCG MPIIO VORONOI POEMS LATTE USER-ATC USER-AWPMD USER-BOCS
   USER-CGDNA USER-MESO USER-CGSDK USER-COLVARS USER-DIFFRACTION USER-DPD USER-DRUDE
   USER-EFF USER-FEP USER-H5MD USER-LB USER-MANIFOLD USER-MEAMC USER-MGPT USER-MISC
-  USER-MOFFF USER-MOLFILE USER-NETCDF USER-PHONON USER-QTB USER-REAXC USER-SCAFACOS 
+  USER-MOFFF USER-MOLFILE USER-NETCDF USER-PHONON USER-QTB USER-REAXC USER-SCAFACOS
   USER-SMD USER-SMTBQ USER-SPH USER-TALLY USER-UEF USER-VTK USER-QUIP USER-QMMM)
 set(ACCEL_PACKAGES USER-OMP KOKKOS OPT USER-INTEL GPU)
 set(OTHER_PACKAGES CORESHELL QEQ)
@@ -430,11 +430,7 @@ if(PKG_VORONOI)
     ExternalProject_Add(voro_build
       URL http://math.lbl.gov/voro++/download/dir/voro++-0.4.6.tar.gz
       URL_MD5 2338b824c3b7b25590e18e8df5d68af9
-<<<<<<< HEAD
-      CONFIGURE_COMMAND "" BUILD_IN_SOURCE 1 INSTALL_COMMAND ""
-=======
       CONFIGURE_COMMAND "" BUILD_COMMAND make ${VORO_BUILD_OPTIONS} BUILD_IN_SOURCE 1 INSTALL_COMMAND ""
->>>>>>> master
       )
     ExternalProject_get_property(voro_build SOURCE_DIR)
     set(VORO_LIBRARIES ${SOURCE_DIR}/src/libvoro++.a)
@@ -453,7 +449,7 @@ endif()
 if(PKG_LATTE)
   option(DOWNLOAD_LATTE "Download latte (instead of using the system's one)" OFF)
   if(DOWNLOAD_LATTE)
-    if (CMAKE_VERSION VERSION_LESS "3.7") # due to SOURCE_SUBDIR 
+    if (CMAKE_VERSION VERSION_LESS "3.7") # due to SOURCE_SUBDIR
       message(FATAL_ERROR "For downlading LATTE you need at least cmake-3.7")
     endif()
     message(STATUS "LATTE not found - we will build our own")
@@ -484,15 +480,15 @@ if(PKG_USER-SCAFACOS)
     ExternalProject_Add(scafacos_build
       URL https://github.com/scafacos/scafacos/releases/download/v1.0.1/scafacos-1.0.1.tar.gz
       URL_MD5 bd46d74e3296bd8a444d731bb10c1738
-      CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> 
-                                               --disable-doc 
+      CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+                                               --disable-doc
                                                --enable-fcs-solvers=fmm,p2nfft,direct,ewald,p3m
                                                --with-internal-fftw
                                                --with-internal-pfft
                                                --with-internal-pnfft
-                                               $<$<BOOL:${BUILD_SHARED_LIBS}>:--with-pic>                                               
-                                               FC=${CMAKE_MPI_Fortran_COMPILER} 
-                                               CXX=${CMAKE_MPI_CXX_COMPILER} 
+                                               $<$<BOOL:${BUILD_SHARED_LIBS}>:--with-pic>
+                                               FC=${CMAKE_MPI_Fortran_COMPILER}
+                                               CXX=${CMAKE_MPI_CXX_COMPILER}
                                                CC=${CMAKE_MPI_C_COMPILER}
                                                F77=
       )
@@ -642,7 +638,7 @@ if(PKG_MSCG)
   find_package(GSL REQUIRED)
   option(DOWNLOAD_MSCG "Download latte (instead of using the system's one)" OFF)
   if(DOWNLOAD_MSCG)
-    if (CMAKE_VERSION VERSION_LESS "3.7") # due to SOURCE_SUBDIR 
+    if (CMAKE_VERSION VERSION_LESS "3.7") # due to SOURCE_SUBDIR
       message(FATAL_ERROR "For downlading LATTE you need at least cmake-3.7")
     endif()
     include(ExternalProject)
@@ -1220,13 +1216,8 @@ if(BUILD_EXE)
       add_dependencies(lmp ${LAMMPS_DEPS})
     endif()
   endif()
-<<<<<<< HEAD
 
-  set_target_properties(lmp PROPERTIES OUTPUT_NAME lmp${LAMMPS_MACHINE})
-=======
-  
   set_target_properties(lmp PROPERTIES OUTPUT_NAME ${LAMMPS_BINARY})
->>>>>>> master
   install(TARGETS lmp DESTINATION ${CMAKE_INSTALL_BINDIR})
   install(FILES ${LAMMPS_DOC_DIR}/lammps.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 RENAME ${LAMMPS_BINARY}.1)
   if(ENABLE_TESTING)
