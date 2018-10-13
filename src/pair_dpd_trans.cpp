@@ -52,6 +52,7 @@ PairDPDTrans::~PairDPDTrans()
     memory->destroy(cutsq);
 
     memory->destroy(cut);
+    memory->destroy(invcut);
     memory->destroy(a0);
     memory->destroy(gamma);
     memory->destroy(gamma_trans);
@@ -129,7 +130,7 @@ void PairDPDTrans::compute(int eflag, int vflag)
         delvz = vztmp - v[j][2];
         dotv = ex*delvx + ey*delvy + ez*delvz;
 
-        wr = 1.0 - r/cut[itype][jtype];
+        wr = 1.0 - r*invcut[itype][jtype];
         wd = wr * wr;
 
         randx = random->gaussian();
@@ -211,6 +212,7 @@ void PairDPDTrans::allocate()
   memory->create(cutsq,n+1,n+1,"pair:cutsq");
 
   memory->create(cut,n+1,n+1,"pair:cut");
+  memory->create(invcut,n+1,n+1,"pair:invcut");
   memory->create(a0,n+1,n+1,"pair:a0");
   memory->create(gamma,n+1,n+1,"pair:gamma");
   memory->create(gamma_trans,n+1,n+1,"pair:gamma_trans");
@@ -247,7 +249,10 @@ void PairDPDTrans::settings(int narg, char **arg)
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut[i][j] = cut_global;
+        if (setflag[i][j]) {
+          cut[i][j] = cut_global;
+          invcut[i][j] = 1.0/cut_global;
+        }
   }
 }
 
@@ -279,6 +284,7 @@ void PairDPDTrans::coeff(int narg, char **arg)
       gamma[i][j] = gamma_one;
       gamma_trans[i][j] = gamma_trans_one;
       cut[i][j] = cut_one;
+      invcut[i][j] = 1.0/cut_one;
       setflag[i][j] = 1;
       count++;
     }
@@ -317,6 +323,7 @@ double PairDPDTrans::init_one(int i, int j)
   sigma_trans[i][j] = sqrt(2.0*force->boltz*temperature*gamma_trans[i][j]);
 
   cut[j][i] = cut[i][j];
+  invcut[j][i] = invcut[i][j];
   a0[j][i] = a0[i][j];
   gamma[j][i] = gamma[i][j];
   gamma_trans[j][i] = gamma_trans[i][j];
@@ -343,6 +350,7 @@ void PairDPDTrans::write_restart(FILE *fp)
         fwrite(&gamma[i][j],sizeof(double),1,fp);
         fwrite(&gamma_trans[i][j],sizeof(double),1,fp);
         fwrite(&cut[i][j],sizeof(double),1,fp);
+        fwrite(&invcut[i][j],sizeof(double),1,fp);
       }
     }
 }
@@ -369,11 +377,13 @@ void PairDPDTrans::read_restart(FILE *fp)
           fread(&gamma[i][j],sizeof(double),1,fp);
           fread(&gamma_trans[i][j],sizeof(double),1,fp);
           fread(&cut[i][j],sizeof(double),1,fp);
+          fread(&invcut[i][j],sizeof(double),1,fp);
         }
         MPI_Bcast(&a0[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&gamma[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&gamma_trans[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&invcut[i][j],1,MPI_DOUBLE,0,world);
       }
     }
 }
@@ -451,7 +461,7 @@ double PairDPDTrans::single(int i, int j, int itype, int jtype, double rsq,
   }
 
   rinv = 1.0/r;
-  wr = 1.0 - r/cut[itype][jtype];
+  wr = 1.0 - r*invcut[itype][jtype];
   fforce = a0[itype][jtype]*wr * factor_dpd*rinv;
 
   phi = 0.5*a0[itype][jtype]*cut[itype][jtype] * wr*wr;

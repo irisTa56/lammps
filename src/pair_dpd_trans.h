@@ -44,7 +44,7 @@ class PairDPDTrans : public Pair {
  protected:
   double cut_global,temperature;
   int seed;
-  double **cut;
+  double **cut, **invcut;
   double **a0,**gamma,**gamma_trans;
   double **sigma,**sigma_trans;
   class RanMars *random;

@@ -113,7 +113,7 @@ void PairDPDTransTstat::compute(int eflag, int vflag)
         delvz = vztmp - v[j][2];
         dotv = ex*delvx + ey*delvy + ez*delvz;
 
-        wr = 1.0 - r/cut[itype][jtype];
+        wr = 1.0 - r*invcut[itype][jtype];
         wd = wr * wr;
 
         randx = random->gaussian();
@@ -195,7 +195,10 @@ void PairDPDTransTstat::settings(int narg, char **arg)
     int i,j;
     for (i = 1; i <= atom->ntypes; i++)
       for (j = i; j <= atom->ntypes; j++)
-        if (setflag[i][j]) cut[i][j] = cut_global;
+        if (setflag[i][j]) {
+          cut[i][j] = cut_global;
+          invcut[i][j] = 1.0/cut_global;
+        }
   }
 }
 
@@ -227,6 +230,7 @@ void PairDPDTransTstat::coeff(int narg, char **arg)
       gamma[i][j] = gamma_one;
       gamma_trans[i][j] = gamma_trans_one;
       cut[i][j] = cut_one;
+      invcut[i][j] = 1.0/cut_one;
       setflag[i][j] = 1;
       count++;
     }
@@ -251,6 +255,7 @@ void PairDPDTransTstat::write_restart(FILE *fp)
         fwrite(&gamma[i][j],sizeof(double),1,fp);
         fwrite(&gamma_trans[i][j],sizeof(double),1,fp);
         fwrite(&cut[i][j],sizeof(double),1,fp);
+        fwrite(&invcut[i][j],sizeof(double),1,fp);
       }
     }
 }
@@ -276,10 +281,12 @@ void PairDPDTransTstat::read_restart(FILE *fp)
           fread(&gamma[i][j],sizeof(double),1,fp);
           fread(&gamma_trans[i][j],sizeof(double),1,fp);
           fread(&cut[i][j],sizeof(double),1,fp);
+          fread(&invcut[i][j],sizeof(double),1,fp);
         }
         MPI_Bcast(&gamma[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&gamma_trans[i][j],1,MPI_DOUBLE,0,world);
         MPI_Bcast(&cut[i][j],1,MPI_DOUBLE,0,world);
+        MPI_Bcast(&invcut[i][j],1,MPI_DOUBLE,0,world);
       }
     }
 }
