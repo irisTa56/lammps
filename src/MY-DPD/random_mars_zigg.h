@@ -43,7 +43,7 @@ class RanMarsZigg : protected Pointers {
   double c,cd,cm;
 
   // for Ziggurat
-  double *x_table,*y_table;
+  double *xtab,*ytab;
   double invr;
 
 };

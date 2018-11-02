@@ -27,7 +27,7 @@ using namespace LAMMPS_NS;
 /* ---------------------------------------------------------------------- */
 
 RanMarsZigg::RanMarsZigg(LAMMPS *lmp, int seed) : Pointers(lmp),
-u(NULL), x_table(NULL), y_table(NULL)
+u(NULL), xtab(NULL), ytab(NULL)
 {
   // for Marsaglia
 
@@ -77,23 +77,23 @@ u(NULL), x_table(NULL), y_table(NULL)
 
   // for Ziggurat
 
-  x_table = new double[ZIGG_N+1];
-  y_table = new double[ZIGG_N];
+  xtab = new double[ZIGG_N+1];
+  ytab = new double[ZIGG_N];
 
-  x_table[ZIGG_N-1] = ZIGG_R;
-  y_table[ZIGG_N-1] = exp(-0.5*ZIGG_R*ZIGG_R);
+  xtab[ZIGG_N-1] = ZIGG_R;
+  ytab[ZIGG_N-1] = exp(-0.5*ZIGG_R*ZIGG_R);
 
   for (int i = ZIGG_N-1; i > 1; --i)
   {
-    x_table[i-1] = sqrt(-2.0*log(
-      ZIGG_S/x_table[i] + exp(-0.5*x_table[i]*x_table[i])));
-    y_table[i-1] = exp(-0.5*x_table[i-1]*x_table[i-1]);
+    xtab[i-1] = sqrt(-2.0*log(
+      ZIGG_S/xtab[i] + exp(-0.5*xtab[i]*xtab[i])));
+    ytab[i-1] = exp(-0.5*xtab[i-1]*xtab[i-1]);
   }
 
-  x_table[0] = 0.0;
-  y_table[0] = 1.0;
+  xtab[0] = 0.0;
+  ytab[0] = 1.0;
 
-  x_table[ZIGG_N] = ZIGG_S*y_table[ZIGG_N-1];
+  xtab[ZIGG_N] = ZIGG_S*ytab[ZIGG_N-1];
 
   invr = 1.0 / ZIGG_R;
 }
@@ -103,8 +103,8 @@ u(NULL), x_table(NULL), y_table(NULL)
 RanMarsZigg::~RanMarsZigg()
 {
   delete [] u;
-  delete [] x_table;
-  delete [] y_table;
+  delete [] xtab;
+  delete [] ytab;
 }
 
 /* ----------------------------------------------------------------------
@@ -138,24 +138,25 @@ double RanMarsZigg::gaussian()
 
   while (true)
   {
-    i = floor(ZIGG_N*uniform());
+    i = ZIGG_N * uniform();
 
-    x = x_table[i+1] * uniform();
+    x = xtab[i+1] * uniform();
 
-    if (x < x_table[i]) break;
+    if (x < xtab[i]) break;
 
     if (i == ZIGG_N-1)
     {
-      x = ZIGG_R - log(1.0-uniform())*invr;
-      y = exp(-ZIGG_R*(x-0.5*ZIGG_R)) * uniform();
+      x = ZIGG_R - log(1.0-uniform()) * invr;
+
+      if (-2.0*log(1.0-uniform()) > (x-ZIGG_R)*(x-ZIGG_R)) break;
     }
     else
     {
-        uni = uniform();
-        y = (1-uni)*y_table[i+1] + uni*y_table[i];
-    }
+      uni = uniform();
+      y = (1-uni)*ytab[i+1] + uni*ytab[i];
 
-    if (y < exp(-0.5*x*x)) break;
+      if ((1-uni)*ytab[i+1] + uni*ytab[i] < exp(-0.5*x*x)) break;
+    }
   }
 
   return uniform() < 0.5 ? x : -x;
