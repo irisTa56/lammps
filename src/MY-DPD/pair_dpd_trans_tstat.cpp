@@ -18,7 +18,7 @@
 #include "force.h"
 #include "neigh_list.h"
 #include "comm.h"
-#include "random_mars.h"
+#include "random_mars_zigg.h"
 #include "error.h"
 
 using namespace LAMMPS_NS;
@@ -187,7 +187,7 @@ void PairDPDTransTstat::settings(int narg, char **arg)
 
   if (seed <= 0) error->all(FLERR,"Illegal pair_style command");
   delete random;
-  random = new RanMars(lmp,seed + comm->me);
+  random = new RanMarsZigg(lmp,seed + comm->me);
 
   // reset cutoffs that have been explicitly set
 
@@ -329,7 +329,7 @@ void PairDPDTransTstat::read_restart_settings(FILE *fp)
   // same seed that pair_style command initially specified
 
   if (random) delete random;
-  random = new RanMars(lmp,seed + comm->me);
+  random = new RanMarsZigg(lmp,seed + comm->me);
 }
 
 /* ----------------------------------------------------------------------
