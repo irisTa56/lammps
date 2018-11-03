@@ -27,7 +27,7 @@
 #include "force.h"
 #include "neighbor.h"
 #include "neigh_list.h"
-#include "random_mars_zigg.h"
+#include "random_ziggurat.h"
 #include "memory.h"
 #include "error.h"
 
@@ -237,11 +237,11 @@ void PairDPDTrans::settings(int narg, char **arg)
   cut_global = force->numeric(FLERR,arg[1]);
   seed = force->inumeric(FLERR,arg[2]);
 
-  // initialize Marsaglia RNG with processor-unique seed
+  // initialize RNG with processor-unique seed
 
   if (seed <= 0) error->all(FLERR,"Illegal pair_style command");
   delete random;
-  random = new RanMarsZigg(lmp,seed + comm->me);
+  random = new RanZiggurat(lmp,seed + comm->me);
 
   // reset cutoffs that have been explicitly set
 
@@ -417,11 +417,11 @@ void PairDPDTrans::read_restart_settings(FILE *fp)
   MPI_Bcast(&seed,1,MPI_INT,0,world);
   MPI_Bcast(&mix_flag,1,MPI_INT,0,world);
 
-  // initialize Marsaglia RNG with processor-unique seed
+  // initialize RNG with processor-unique seed
   // same seed that pair_style command initially specified
 
   if (random) delete random;
-  random = new RanMarsZigg(lmp,seed + comm->me);
+  random = new RanZiggurat(lmp,seed + comm->me);
 }
 
 /* ----------------------------------------------------------------------

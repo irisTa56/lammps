@@ -11,16 +11,16 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#ifndef LMP_RANMARSZIGG_H
-#define LMP_RANMARSZIGG_H
+#ifndef LMP_RANZIGGURAT_H
+#define LMP_RANZIGGURAT_H
 
 #include "pointers.h"
 
 namespace LAMMPS_NS {
 
-class RanMarsZigg : protected Pointers {
+class RanZiggurat : protected Pointers {
 
-  // number of segments
+  // this program works only if # of segments is 128)
   const int ZIGG_N = 128;
 
   // position of right-most step
@@ -30,9 +30,10 @@ class RanMarsZigg : protected Pointers {
   const double ZIGG_S = 9.91256303533647e-03;
 
  public:
-  RanMarsZigg(class LAMMPS *, int);
-  ~RanMarsZigg();
+  RanZiggurat(class LAMMPS *, int);
+  ~RanZiggurat();
   double uniform();
+  uint32_t xorshift();
   double gaussian();
 
  private:
@@ -42,10 +43,13 @@ class RanMarsZigg : protected Pointers {
   int i97,j97;
   double c,cd,cm;
 
-  // for Ziggurat
-  double *xtab,*ytab;
-  double invr;
+  // for Xorshift
+  uint32_t state;
 
+  // for Ziggurat
+  uint32_t *ktab;
+  double *wtab,*ytab;
+  double invR;
 };
 
 }

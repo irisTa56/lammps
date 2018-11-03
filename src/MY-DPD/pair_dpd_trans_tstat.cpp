@@ -18,7 +18,7 @@
 #include "force.h"
 #include "neigh_list.h"
 #include "comm.h"
-#include "random_mars_zigg.h"
+#include "random_ziggurat.h"
 #include "error.h"
 
 using namespace LAMMPS_NS;
@@ -183,11 +183,11 @@ void PairDPDTransTstat::settings(int narg, char **arg)
 
   temperature = t_start;
 
-  // initialize Marsaglia RNG with processor-unique seed
+  // initialize RNG with processor-unique seed
 
   if (seed <= 0) error->all(FLERR,"Illegal pair_style command");
   delete random;
-  random = new RanMarsZigg(lmp,seed + comm->me);
+  random = new RanZiggurat(lmp,seed + comm->me);
 
   // reset cutoffs that have been explicitly set
 
@@ -325,11 +325,11 @@ void PairDPDTransTstat::read_restart_settings(FILE *fp)
 
   temperature = t_start;
 
-  // initialize Marsaglia RNG with processor-unique seed
+  // initialize RNG with processor-unique seed
   // same seed that pair_style command initially specified
 
   if (random) delete random;
-  random = new RanMarsZigg(lmp,seed + comm->me);
+  random = new RanZiggurat(lmp,seed + comm->me);
 }
 
 /* ----------------------------------------------------------------------
