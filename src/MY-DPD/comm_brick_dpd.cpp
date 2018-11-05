@@ -247,6 +247,28 @@ void CommBrickDPD::setup()
 
   presetup(MAX(neighbor->cutneighmax,cutghostuser));
 
+  if (comm->me == 0)
+  {
+    if (screen)
+    {
+      fprintf(
+        screen,"Max # of swaps: 2 * (%d * %d * %d)\n",
+        maxneed[0],maxneed[1],maxneed[2]);
+      fprintf(
+        screen,"Max # of swaps for DPD: 2 * (%d * %d * %d)\n",
+        maxneed_dpd[0],maxneed_dpd[1],maxneed_dpd[2]);
+    }
+    if (logfile)
+    {
+      fprintf(
+        logfile,"Max # of swaps: 2 * (%d * %d * %d)\n",
+        maxneed[0],maxneed[1],maxneed[2]);
+      fprintf(
+        logfile,"Max # of swaps for DPD: 2 * (%d * %d * %d)\n",
+        maxneed_dpd[0],maxneed_dpd[1],maxneed_dpd[2]);
+    }
+  }
+
   double *sublo,*subhi;
 
   sublo = domain->sublo;
