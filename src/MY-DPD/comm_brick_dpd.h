@@ -36,7 +36,6 @@ class CommBrickDPD : public CommBrick {
   int *size_forward_recv_dpd;
   int *size_reverse_send_dpd,*size_reverse_recv_dpd;
   int *sendnum_dpd,*recvnum_dpd;
-  double *slablo_dpd,*slabhi_dpd;
 
   virtual void allocate_swap(int) override;
   virtual void free_swap() override;

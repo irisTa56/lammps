@@ -42,9 +42,7 @@
 
 using namespace LAMMPS_NS;
 
-#define BUFFACTOR 1.5
 #define BUFMIN 1000
-#define BUFEXTRA 1000
 #define BIG 1.0e20
 
 /* ---------------------------------------------------------------------- */
@@ -292,10 +290,8 @@ void CommBrickDPD::setup()
 
         if (ineed < 2) slablo[iswap] = -BIG;
         else slablo[iswap] = 0.5 * (sublo[dim] + subhi[dim]);
-        slablo_dpd[iswap] = slablo[iswap];
 
         slabhi[iswap] = sublo[dim] + cutghost[dim];
-        slabhi_dpd[iswap] = sublo[dim] + cutghost_dpd[dim];
 
         if (myloc[dim] == 0) {
           pbc_flag[iswap] = 1;
@@ -311,11 +307,9 @@ void CommBrickDPD::setup()
         recvproc[iswap] = procneigh[dim][0];
 
         slablo[iswap] = subhi[dim] - cutghost[dim];
-        slablo_dpd[iswap] = subhi[dim] - cutghost_dpd[dim];
 
         if (ineed < 2) slabhi[iswap] = BIG;
         else slabhi[iswap] = 0.5 * (sublo[dim] + subhi[dim]);
-        slabhi_dpd[iswap] = slabhi[iswap];
 
         if (myloc[dim] == procgrid[dim]-1) {
           pbc_flag[iswap] = 1;
@@ -511,6 +505,9 @@ void CommBrickDPD::borders()
   std::vector<int> list_dpd;
   std::vector<int> list_pair;
 
+  list_dpd.reserve(BUFMIN);
+  list_pair.reserve(BUFMIN);
+
   int nfirst,nlast,nsend,nrecv,nsend_dpd,nrecv_dpd;
 
   int iswap = 0;
@@ -535,8 +532,8 @@ void CommBrickDPD::borders()
 
       double lo = slablo[iswap];
       double hi = slabhi[iswap];
-      double lo_dpd = slablo_dpd[iswap];
-      double hi_dpd = slabhi_dpd[iswap];
+      double lo_dpd = lo + cutdiff;
+      double hi_dpd = hi - cutdiff;
 
       if (ineed % 2 == 0)
       {
@@ -569,15 +566,26 @@ void CommBrickDPD::borders()
         {
           if (dpd_needs)
           {
-            for (int i = nfirst; i != nlast; ++i)
+            if (ineed % 2 == 0)
             {
-              if (x[i][dim] >= lo_dpd && x[i][dim] <= hi_dpd)
+              for (int i = nfirst; i != nlast; ++i)
               {
-                list_dpd.push_back(i);
+                if (x[i][dim] >= lo && x[i][dim] <= hi)
+                {
+                  if (x[i][dim] <= hi_dpd) list_dpd.push_back(i);
+                  else list_pair.push_back(i);
+                }
               }
-              else if (x[i][dim] >= lo && x[i][dim] <= hi)
+            }
+            else
+            {
+              for (int i = nfirst; i != nlast; ++i)
               {
-                list_pair.push_back(i);
+                if (x[i][dim] >= lo && x[i][dim] <= hi)
+                {
+                  if (x[i][dim] >= lo_dpd) list_dpd.push_back(i);
+                  else list_pair.push_back(i);
+                }
               }
             }
           }
@@ -598,27 +606,44 @@ void CommBrickDPD::borders()
 
           if (dpd_needs)
           {
-            for (int i = 0; i != ngroup; ++i)
+            if (ineed % 2 == 0)
             {
-              if (x[i][dim] >= lo_dpd && x[i][dim] <= hi_dpd)
+              for (int i = 0; i != ngroup; ++i)
               {
-                list_dpd.push_back(i);
+                if (x[i][dim] >= lo && x[i][dim] <= hi)
+                {
+                  if (x[i][dim] <= hi_dpd) list_dpd.push_back(i);
+                  else list_pair.push_back(i);
+                }
               }
-              else if (x[i][dim] >= lo && x[i][dim] <= hi)
+
+              for (int i = atom->nlocal; i != nlast; ++i)
               {
-                list_pair.push_back(i);
+                if (x[i][dim] >= lo && x[i][dim] <= hi)
+                {
+                  if (x[i][dim] <= hi_dpd) list_dpd.push_back(i);
+                  else list_pair.push_back(i);
+                }
               }
             }
-
-            for (int i = atom->nlocal; i != nlast; ++i)
+            else
             {
-              if (x[i][dim] >= lo_dpd && x[i][dim] <= hi_dpd)
+              for (int i = 0; i != ngroup; ++i)
               {
-                list_dpd.push_back(i);
+                if (x[i][dim] >= lo && x[i][dim] <= hi)
+                {
+                  if (x[i][dim] >= lo_dpd) list_dpd.push_back(i);
+                  else list_pair.push_back(i);
+                }
               }
-              else if (x[i][dim] >= lo && x[i][dim] <= hi)
+
+              for (int i = atom->nlocal; i != nlast; ++i)
               {
-                list_pair.push_back(i);
+                if (x[i][dim] >= lo && x[i][dim] <= hi)
+                {
+                  if (x[i][dim] >= lo_dpd) list_dpd.push_back(i);
+                  else list_pair.push_back(i);
+                }
               }
             }
           }
@@ -737,6 +762,7 @@ void CommBrickDPD::borders()
       size_reverse_recv_dpd[iswap] = nsend_dpd*size_reverse;
       firstrecv[iswap] = atom->nlocal + atom->nghost;
       atom->nghost += nrecv;
+
       iswap++;
     }
   }
@@ -766,8 +792,6 @@ void CommBrickDPD::allocate_swap(int n)
   memory->create(size_forward_recv_dpd,n,"comm:size");
   memory->create(size_reverse_send_dpd,n,"comm:size");
   memory->create(size_reverse_recv_dpd,n,"comm:size");
-  memory->create(slablo_dpd,n,"comm:slablo");
-  memory->create(slabhi_dpd,n,"comm:slabhi");
 }
 
 /* ----------------------------------------------------------------------
@@ -783,6 +807,4 @@ void CommBrickDPD::free_swap()
   memory->destroy(size_forward_recv_dpd);
   memory->destroy(size_reverse_send_dpd);
   memory->destroy(size_reverse_recv_dpd);
-  memory->destroy(slablo_dpd);
-  memory->destroy(slabhi_dpd);
 }

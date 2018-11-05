@@ -38,7 +38,6 @@
 #include "memory.h"
 #include "error.h"
 #include "comm_brick_dpd.h"
-#include "pair_hybrid_overlay_respa.h"
 
 using namespace LAMMPS_NS;
 
@@ -53,26 +52,22 @@ RespaDPD::RespaDPD(LAMMPS *lmp, int narg, char **arg) :
 
   if (strcmp(force->pair_style,"hybrid/overlay/respa"))
   {
+    // 'overlay/respa' is required to construct CommBrickDPD
     error->all(
       FLERR,"Illegal pair_style: respa/dpd accepts only hybrid/overlay/respa");
   }
 
-  PairHybridOverlayRespa *hybrid
-    = dynamic_cast<PairHybridOverlayRespa *>(force->pair);
-  nhybrid_styles = hybrid->nstyles;
-
-  hybrid_level = new int[nhybrid_styles];
-  hybrid_compute = new int[nhybrid_styles];
+  int max_hybrid_level = 0;
 
   for (int i = 0; i < nhybrid_styles; ++i)
   {
-    // DPD forces are computed at the innermost Respa loop
-    hybrid_level[i]
-      = strstr((hybrid->keywords)[i], "dpd") ? 0 : level_pair;
+    if (max_hybrid_level < hybrid_level[i])
+    {
+      max_hybrid_level = hybrid_level[i];
+    }
   }
 
-  mlevel = MAX(level_pair-1,0);
-  level_pair = -1;
+  mlevel = MAX(max_hybrid_level-1,0);
 
   /* Comm settings */
 

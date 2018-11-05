@@ -25,7 +25,6 @@ PairStyle(hybrid/overlay/respa,PairHybridOverlayRespa)
 namespace LAMMPS_NS {
 
 class PairHybridOverlayRespa : public PairHybridOverlay {
-  friend class RespaDPD;
   friend class CommBrickDPD;
  public:
   using PairHybridOverlay::PairHybridOverlay;
