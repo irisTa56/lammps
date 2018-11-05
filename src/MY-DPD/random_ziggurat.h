@@ -11,14 +11,14 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#ifndef LMP_RANZIGGURAT_H
-#define LMP_RANZIGGURAT_H
+#ifndef LMP_RANDOM_ZIGGURAT_H
+#define LMP_RANDOM_ZIGGURAT_H
 
 #include "pointers.h"
 
 namespace LAMMPS_NS {
 
-class RanZiggurat : protected Pointers {
+class RandomZiggurat : protected Pointers {
 
   // this program works only if # of segments is 128)
   const int ZIGG_N = 128;
@@ -30,10 +30,8 @@ class RanZiggurat : protected Pointers {
   const double ZIGG_S = 9.91256303533647e-03;
 
  public:
-  RanZiggurat(class LAMMPS *, int);
-  ~RanZiggurat();
-  double uniform();
-  uint32_t xorshift();
+  RandomZiggurat(class LAMMPS *, int);
+  ~RandomZiggurat();
   double gaussian();
 
  private:
@@ -42,6 +40,7 @@ class RanZiggurat : protected Pointers {
   double *u;
   int i97,j97;
   double c,cd,cm;
+  double uniform();
 
   // for Xorshift
   uint32_t state;
@@ -50,6 +49,7 @@ class RanZiggurat : protected Pointers {
   uint32_t *ktab;
   double *wtab,*ytab;
   double invR;
+  uint32_t xorshift();
 };
 
 }

@@ -22,7 +22,6 @@
 #include "pair_dpd_trans.h"
 #include "atom.h"
 #include "atom_vec.h"
-#include "comm.h"
 #include "update.h"
 #include "force.h"
 #include "neighbor.h"
@@ -30,6 +29,7 @@
 #include "random_ziggurat.h"
 #include "memory.h"
 #include "error.h"
+#include "comm_brick_dpd.h"
 
 using namespace LAMMPS_NS;
 
@@ -241,7 +241,7 @@ void PairDPDTrans::settings(int narg, char **arg)
 
   if (seed <= 0) error->all(FLERR,"Illegal pair_style command");
   delete random;
-  random = new RanZiggurat(lmp,seed + comm->me);
+  random = new RandomZiggurat(lmp,seed + comm->me);
 
   // reset cutoffs that have been explicitly set
 
@@ -299,8 +299,8 @@ void PairDPDTrans::coeff(int narg, char **arg)
 
 void PairDPDTrans::init_style()
 {
-  if (comm->ghost_velocity == 0)
-    error->all(FLERR,"Pair dpd requires ghost atoms store velocity");
+  if (comm->ghost_velocity == 0 && ! dynamic_cast<CommBrickDPD *>(comm))
+    error->all(FLERR,"Pair dpd requires ghost atoms store velocity!");
 
   // if newton off, forces between atoms ij will be double computed
   // using different random numbers
@@ -421,7 +421,7 @@ void PairDPDTrans::read_restart_settings(FILE *fp)
   // same seed that pair_style command initially specified
 
   if (random) delete random;
-  random = new RanZiggurat(lmp,seed + comm->me);
+  random = new RandomZiggurat(lmp,seed + comm->me);
 }
 
 /* ----------------------------------------------------------------------

@@ -126,8 +126,7 @@ void PairDPDTransTstat::compute(int eflag, int vflag)
 
         /*=== standard part ===*/
 
-        fpair = 0.0;
-        fpair -= gamma[itype][jtype]*wd*dotv;
+        fpair = -gamma[itype][jtype]*wd*dotv;
         fpair += sigma[itype][jtype]*wr*dotr*dtinvsqrt;
 
         fx = ex*fpair;
@@ -159,8 +158,8 @@ void PairDPDTransTstat::compute(int eflag, int vflag)
           f[j][2] -= fz;
         }
 
-        if (evflag) ev_tally_xyz(i,j,nlocal,newton_pair,
-                                 0.0,0.0,fx,fy,fz,delx,dely,delz);
+        if (evflag) _ev_tally_xyz(i,j,nlocal,newton_pair,
+                                  fx,fy,fz,delx,dely,delz);
       }
     }
   }
@@ -187,7 +186,7 @@ void PairDPDTransTstat::settings(int narg, char **arg)
 
   if (seed <= 0) error->all(FLERR,"Illegal pair_style command");
   delete random;
-  random = new RanZiggurat(lmp,seed + comm->me);
+  random = new RandomZiggurat(lmp,seed + comm->me);
 
   // reset cutoffs that have been explicitly set
 
@@ -329,7 +328,7 @@ void PairDPDTransTstat::read_restart_settings(FILE *fp)
   // same seed that pair_style command initially specified
 
   if (random) delete random;
-  random = new RanZiggurat(lmp,seed + comm->me);
+  random = new RandomZiggurat(lmp,seed + comm->me);
 }
 
 /* ----------------------------------------------------------------------
@@ -352,4 +351,73 @@ void PairDPDTransTstat::write_data_all(FILE *fp)
     for (int j = i; j <= atom->ntypes; j++)
       fprintf(fp,"%d %d %g %g %g\n",
               i,j,gamma[i][j],gamma_trans[i][j],cut[i][j]);
+}
+
+/* ----------------------------------------------------------------------
+   tally virial into global and per-atom accumulators
+   for virial, have delx,dely,delz and fx,fy,fz
+------------------------------------------------------------------------- */
+
+void PairDPDTransTstat::_ev_tally_xyz(int i, int j,
+                                      int nlocal, int newton_pair,
+                                      double fx, double fy, double fz,
+                                      double delx, double dely, double delz)
+{
+  double v[6];
+
+  if (vflag_either) {
+    v[0] = delx*fx;
+    v[1] = dely*fy;
+    v[2] = delz*fz;
+    v[3] = delx*fy;
+    v[4] = delx*fz;
+    v[5] = dely*fz;
+
+    if (vflag_global) {
+      if (newton_pair) {
+        virial[0] += v[0];
+        virial[1] += v[1];
+        virial[2] += v[2];
+        virial[3] += v[3];
+        virial[4] += v[4];
+        virial[5] += v[5];
+      } else {
+        if (i < nlocal) {
+          virial[0] += 0.5*v[0];
+          virial[1] += 0.5*v[1];
+          virial[2] += 0.5*v[2];
+          virial[3] += 0.5*v[3];
+          virial[4] += 0.5*v[4];
+          virial[5] += 0.5*v[5];
+        }
+        if (j < nlocal) {
+          virial[0] += 0.5*v[0];
+          virial[1] += 0.5*v[1];
+          virial[2] += 0.5*v[2];
+          virial[3] += 0.5*v[3];
+          virial[4] += 0.5*v[4];
+          virial[5] += 0.5*v[5];
+        }
+      }
+    }
+
+    if (vflag_atom) {
+      if (newton_pair || i < nlocal) {
+        vatom[i][0] += 0.5*v[0];
+        vatom[i][1] += 0.5*v[1];
+        vatom[i][2] += 0.5*v[2];
+        vatom[i][3] += 0.5*v[3];
+        vatom[i][4] += 0.5*v[4];
+        vatom[i][5] += 0.5*v[5];
+      }
+      if (newton_pair || j < nlocal) {
+        vatom[j][0] += 0.5*v[0];
+        vatom[j][1] += 0.5*v[1];
+        vatom[j][2] += 0.5*v[2];
+        vatom[j][3] += 0.5*v[3];
+        vatom[j][4] += 0.5*v[4];
+        vatom[j][5] += 0.5*v[5];
+      }
+    }
+  }
 }

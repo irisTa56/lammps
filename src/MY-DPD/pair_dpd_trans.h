@@ -47,7 +47,7 @@ class PairDPDTrans : public Pair {
   double **cut, **invcut;
   double **a0,**gamma,**gamma_trans;
   double **sigma,**sigma_trans;
-  class RanZiggurat *random;
+  class RandomZiggurat *random;
 
   void allocate();
 };

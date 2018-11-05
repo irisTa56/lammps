@@ -25,7 +25,7 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-RanZiggurat::RanZiggurat(LAMMPS *lmp, int seed) : Pointers(lmp),
+RandomZiggurat::RandomZiggurat(LAMMPS *lmp, int seed) : Pointers(lmp),
 u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
 {
   if (seed <= 0 || seed > 900000000)
@@ -115,7 +115,7 @@ u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
 
 /* ---------------------------------------------------------------------- */
 
-RanZiggurat::~RanZiggurat()
+RandomZiggurat::~RandomZiggurat()
 {
   delete [] u;
   delete [] ktab;
@@ -127,7 +127,7 @@ RanZiggurat::~RanZiggurat()
    uniform RN
 ------------------------------------------------------------------------- */
 
-double RanZiggurat::uniform()
+double RandomZiggurat::uniform()
 {
   double uni = u[i97] - u[j97];
 
@@ -173,7 +173,7 @@ double RanZiggurat::uniform()
    32-bit RN
 ------------------------------------------------------------------------- */
 
-uint32_t RanZiggurat::xorshift()
+uint32_t RandomZiggurat::xorshift()
 {
   uint32_t x = state;
 
@@ -190,7 +190,7 @@ uint32_t RanZiggurat::xorshift()
    gaussian RN
 ------------------------------------------------------------------------- */
 
-double RanZiggurat::gaussian()
+double RandomZiggurat::gaussian()
 {
   uint32_t rand32,i,sign,ix;
   double uni,x;
