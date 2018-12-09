@@ -24,10 +24,14 @@ PairStyle(hybrid/overlay/respa,PairHybridOverlayRespa)
 
 namespace LAMMPS_NS {
 
+// NOTE: This class works even if RESPA is not applied.
 class PairHybridOverlayRespa : public PairHybridOverlay {
   friend class CommBrickDPD;
  public:
   using PairHybridOverlay::PairHybridOverlay;
+
+  virtual void add_tally_callback(class Compute *) override;
+  virtual void del_tally_callback(class Compute *) override;
 };
 
 }

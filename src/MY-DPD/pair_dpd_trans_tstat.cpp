@@ -19,6 +19,7 @@
 #include "neigh_list.h"
 #include "comm.h"
 #include "random_ziggurat.h"
+#include "compute.h"
 #include "error.h"
 
 using namespace LAMMPS_NS;
@@ -158,7 +159,7 @@ void PairDPDTransTstat::compute(int eflag, int vflag)
           f[j][2] -= fz;
         }
 
-        if (evflag) _ev_tally_xyz(i,j,nlocal,newton_pair,
+        if (evflag) ev_tally_trans(i,j,nlocal,newton_pair,
                                   fx,fy,fz,delx,dely,delz);
       }
     }
@@ -358,66 +359,73 @@ void PairDPDTransTstat::write_data_all(FILE *fp)
    for virial, have delx,dely,delz and fx,fy,fz
 ------------------------------------------------------------------------- */
 
-void PairDPDTransTstat::_ev_tally_xyz(int i, int j,
-                                      int nlocal, int newton_pair,
-                                      double fx, double fy, double fz,
-                                      double delx, double dely, double delz)
+void PairDPDTransTstat::ev_tally_trans(int i, int j,
+                                       int nlocal, int newton_pair,
+                                       double fx, double fy, double fz,
+                                       double delx, double dely, double delz)
 {
-  double v[6];
-
   if (vflag_either) {
-    v[0] = delx*fx;
-    v[1] = dely*fy;
-    v[2] = delz*fz;
-    v[3] = delx*fy;
-    v[4] = delx*fz;
-    v[5] = dely*fz;
+    double v0 = delx*fx;
+    double v1 = dely*fy;
+    double v2 = delz*fz;
+    double v3 = delx*fy;
+    double v4 = delx*fz;
+    double v5 = dely*fz;
 
     if (vflag_global) {
       if (newton_pair) {
-        virial[0] += v[0];
-        virial[1] += v[1];
-        virial[2] += v[2];
-        virial[3] += v[3];
-        virial[4] += v[4];
-        virial[5] += v[5];
+        virial[0] += v0;
+        virial[1] += v1;
+        virial[2] += v2;
+        virial[3] += v3;
+        virial[4] += v4;
+        virial[5] += v5;
       } else {
         if (i < nlocal) {
-          virial[0] += 0.5*v[0];
-          virial[1] += 0.5*v[1];
-          virial[2] += 0.5*v[2];
-          virial[3] += 0.5*v[3];
-          virial[4] += 0.5*v[4];
-          virial[5] += 0.5*v[5];
+          virial[0] += 0.5*v0;
+          virial[1] += 0.5*v1;
+          virial[2] += 0.5*v2;
+          virial[3] += 0.5*v3;
+          virial[4] += 0.5*v4;
+          virial[5] += 0.5*v5;
         }
         if (j < nlocal) {
-          virial[0] += 0.5*v[0];
-          virial[1] += 0.5*v[1];
-          virial[2] += 0.5*v[2];
-          virial[3] += 0.5*v[3];
-          virial[4] += 0.5*v[4];
-          virial[5] += 0.5*v[5];
+          virial[0] += 0.5*v0;
+          virial[1] += 0.5*v1;
+          virial[2] += 0.5*v2;
+          virial[3] += 0.5*v3;
+          virial[4] += 0.5*v4;
+          virial[5] += 0.5*v5;
         }
       }
     }
 
     if (vflag_atom) {
       if (newton_pair || i < nlocal) {
-        vatom[i][0] += 0.5*v[0];
-        vatom[i][1] += 0.5*v[1];
-        vatom[i][2] += 0.5*v[2];
-        vatom[i][3] += 0.5*v[3];
-        vatom[i][4] += 0.5*v[4];
-        vatom[i][5] += 0.5*v[5];
+        vatom[i][0] += 0.5*v0;
+        vatom[i][1] += 0.5*v1;
+        vatom[i][2] += 0.5*v2;
+        vatom[i][3] += 0.5*v3;
+        vatom[i][4] += 0.5*v4;
+        vatom[i][5] += 0.5*v5;
       }
       if (newton_pair || j < nlocal) {
-        vatom[j][0] += 0.5*v[0];
-        vatom[j][1] += 0.5*v[1];
-        vatom[j][2] += 0.5*v[2];
-        vatom[j][3] += 0.5*v[3];
-        vatom[j][4] += 0.5*v[4];
-        vatom[j][5] += 0.5*v[5];
+        vatom[j][0] += 0.5*v0;
+        vatom[j][1] += 0.5*v1;
+        vatom[j][2] += 0.5*v2;
+        vatom[j][3] += 0.5*v3;
+        vatom[j][4] += 0.5*v4;
+        vatom[j][5] += 0.5*v5;
       }
+    }
+  }
+
+  // NOTE: compute/tally works with only force.
+  if (num_tally_compute > 0) {
+    for (int k=0; k < num_tally_compute; ++k) {
+      Compute *c = list_tally_compute[k];
+      c->pair_tally_callback(i, j, nlocal, newton_pair,
+                             0.0, 0.0, 1.0, fx, fy, fz);
     }
   }
 }

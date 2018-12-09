@@ -42,8 +42,8 @@ class PairDPDTransTstat : public PairDPDTrans {
   double t_start,t_stop;
 
  private:
-  void _ev_tally_xyz(int, int, int, int,
-                     double, double, double, double, double, double);
+  void ev_tally_trans(int, int, int, int,
+                      double, double, double, double, double, double);
 };
 
 }

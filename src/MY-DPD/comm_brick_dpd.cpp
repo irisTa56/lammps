@@ -72,7 +72,7 @@ CommBrickDPD::CommBrickDPD(LAMMPS *, CommBrick *oldcomm) :
 void CommBrickDPD::init()
 {
   if (mode != Comm::SINGLE) {
-    error->all(FLERR,"CommBrickDPD supports only sungle-mode");
+    error->all(FLERR,"CommBrickDPD supports only single-mode");
   }
 
   if (triclinic) {
