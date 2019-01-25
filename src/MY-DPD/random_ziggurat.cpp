@@ -11,9 +11,6 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-// Marsaglia random number generator
-// see RANMAR in F James, Comp Phys Comm, 60, 329 (1990)
-
 // Ziggurat algorithm for generating Gaussian random number
 // see https://www.seehuhn.de/pages/ziggurat, Jochen Voss, 2014-06-11
 
@@ -56,10 +53,7 @@ u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
       k = m;
       l = (53*l+1) % 169;
 
-      if ((l*m) % 64 > 31)
-      {
-        s += t;
-      }
+      if ((l*m) % 64 > 31) s += t;
 
       t *= 0.5;
     }
@@ -131,41 +125,16 @@ double RandomZiggurat::uniform()
 {
   double uni = u[i97] - u[j97];
 
-  if (uni < 0.0)
-  {
-    uni += 1.0;
-  }
-
+  if (uni < 0.0) uni += 1.0;
   u[i97] = uni;
-
   i97--;
-
-  if (i97 == 0)
-  {
-    i97 = 97;
-  }
-
+  if (i97 == 0) i97 = 97;
   j97--;
-
-  if (j97 == 0)
-  {
-    j97 = 97;
-  }
-
+  if (j97 == 0) j97 = 97;
   c -= cd;
-
-  if (c < 0.0)
-  {
-    c += cm;
-  }
-
+  if (c < 0.0) c += cm;
   uni -= c;
-
-  if (uni < 0.0)
-  {
-    uni += 1.0;
-  }
-
+  if (uni < 0.0) uni += 1.0;
   return uni;
 }
 

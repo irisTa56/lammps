@@ -50,4 +50,13 @@ pair_coeff type1 type2 gamma gamma_t cutoff
 
 Same with `pair_dpd_trans` except for absence of the conservative term.
 
+### `random_ziggurat`
+
+Random number generator:
+
+* Generates a random number following the standard normal distribution.
+* Uses [Xorshift method](https://en.wikipedia.org/wiki/Xorshift) to generate a 32-bit integer, and then [Ziggurat method](https://en.wikipedia.org/wiki/Ziggurat_algorithm) to generate (determine) a random number following the standard normal distribution from the integer.
+* Faster than [Marsaglia polar method](https://en.wikipedia.org/wiki/Marsaglia_polar_method), which is used for `pair_dpd` and `pair_dpd_tstat`.
+  * Even for *standard* DPD, `pair_dpd_trans`/`pair_dpd_trans_tstat` with setting `gamma_t` to zero runs faster than `pair_dpd`/`pair_dpd_tstat`.
+
 ## Tally computing for pair/hybrid
