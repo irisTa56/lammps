@@ -299,7 +299,7 @@ void PairDPDTrans::coeff(int narg, char **arg)
 
 void PairDPDTrans::init_style()
 {
-  if (comm->ghost_velocity == 0 && ! dynamic_cast<CommBrickDPD *>(comm))
+  if (comm->ghost_velocity == 0)
     error->all(FLERR,"Pair dpd requires ghost atoms store velocity!");
 
   // if newton off, forces between atoms ij will be double computed

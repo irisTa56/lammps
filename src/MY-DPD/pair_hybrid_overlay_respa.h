@@ -26,7 +26,6 @@ namespace LAMMPS_NS {
 
 // NOTE: This class works even if RESPA is not applied.
 class PairHybridOverlayRespa : public PairHybridOverlay {
-  friend class CommBrickDPD;
  public:
   using PairHybridOverlay::PairHybridOverlay;
 
