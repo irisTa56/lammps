@@ -59,4 +59,9 @@ Random number generator:
 * Faster than [Marsaglia polar method](https://en.wikipedia.org/wiki/Marsaglia_polar_method), which is used for `pair_dpd` and `pair_dpd_tstat`.
   * Even for *standard* DPD, `pair_dpd_trans`/`pair_dpd_trans_tstat` with setting `gamma_t` to zero runs faster than `pair_dpd`/`pair_dpd_tstat`.
 
-## Tally computing for pair/hybrid
+## Tally computing for pair/hybrid/overlay
+
+Difference of `pair/hybrid/overlay/tally` from `pair/hybrid/overlay` is how to use `pair_modify`.
+For `pair/hybrid/overlay/tally`, the `compute/tally` keyword of `pair_modify` accepts *id* of a `compute` command. In other words, a *Compute* instance specified by its *id* is associated with a sub-style of the hybrid pair style via `compute/tally` keyword. Note that one *Compute* instance should be added to only one sub-style, whereas multiple *Compute* instances can be added to one sub-style.
+
+For example usage, please see [examples of irisTa56/wapylmp](https://github.com/irisTa56/wapylmp).

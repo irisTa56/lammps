@@ -25,8 +25,7 @@ using namespace LAMMPS_NS;
 RandomZiggurat::RandomZiggurat(LAMMPS *lmp, int seed) : Pointers(lmp),
 u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
 {
-  if (seed <= 0 || seed > 900000000)
-  {
+  if (seed <= 0 || seed > 900000000) {
     error->one(FLERR,"Invalid seed for Marsaglia random # generator");
   }
 
@@ -39,13 +38,11 @@ u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
   int k = (kl/169) % 178 + 1;
   int l = kl % 169;
 
-  for (int ii = 1; ii < 98; ++ii)
-  {
+  for (int ii = 1; ii < 98; ++ii) {
     double s = 0.0;
     double t = 0.5;
 
-    for (int jj = 1; jj < 25; ++jj)
-    {
+    for (int jj = 1; jj < 25; ++jj) {
       int m = ((i*j)%179) * k % 179;
 
       i = j;
@@ -84,8 +81,7 @@ u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
   xtab[ZIGG_N-1] = ZIGG_R;
   ytab[ZIGG_N-1] = exp(-0.5*ZIGG_R*ZIGG_R);
 
-  for (int ii = ZIGG_N-1; ii > 1; --ii)
-  {
+  for (int ii = ZIGG_N-1; ii > 1; --ii) {
     xtab[ii-1] = sqrt(-2.0*log(
       ZIGG_S/xtab[ii] + exp(-0.5*xtab[ii]*xtab[ii])));
     ytab[ii-1] = exp(-0.5*xtab[ii-1]*xtab[ii-1]);
@@ -98,8 +94,7 @@ u(NULL), ktab(NULL), wtab(NULL), ytab(NULL)
 
   uint32_t pow2_24 = pow(2,24);
 
-  for (int ii = 0; ii < ZIGG_N; ++ii)
-  {
+  for (int ii = 0; ii < ZIGG_N; ++ii) {
     ktab[ii] = pow2_24 * xtab[ii]/xtab[ii+1];
     wtab[ii] = xtab[ii+1] / double(pow2_24);
   }
@@ -164,8 +159,7 @@ double RandomZiggurat::gaussian()
   uint32_t rand32,i,sign,ix;
   double uni,x;
 
-  while (true)
-  {
+  while (true) {
     rand32 = xorshift();
     i = rand32 & 0x0000007F;  // 7 bit to for segment (0 ... 127 as int)
     sign = rand32 & 0x00000080;  // 1 bit for sign (0 or 128 as int)
@@ -175,13 +169,10 @@ double RandomZiggurat::gaussian()
 
     if (ix < ktab[i])  break;
 
-    if (i == ZIGG_N-1)
-    {
+    if (i == ZIGG_N-1) {
       x = ZIGG_R - log(1.0-uniform()) * invR;
       if (-2.0*log(1.0-uniform()) > (x-ZIGG_R)*(x-ZIGG_R)) break;
-    }
-    else
-    {
+    } else {
       uni = uniform();
       if ((1-uni)*ytab[i+1] + uni*ytab[i] < exp(-0.5*x*x)) break;
     }

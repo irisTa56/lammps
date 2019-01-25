@@ -13,21 +13,28 @@
 
 #ifdef PAIR_CLASS
 
-PairStyle(hybrid/overlay/respa,PairHybridOverlayRespa)
+PairStyle(hybrid/overlay/tally,PairHybridOverlayTally)
 
 #else
 
-#ifndef LMP_PAIR_HYBRID_OVERLAY_RESPA_H
-#define LMP_PAIR_HYBRID_OVERLAY_RESPA_H
+#ifndef LMP_PAIR_HYBRID_OVERLAY_TALLY_H
+#define LMP_PAIR_HYBRID_OVERLAY_TALLY_H
 
+#include <string>
+#include <vector>
+#include <unordered_set>
 #include "pair_hybrid_overlay.h"
 
 namespace LAMMPS_NS {
 
-// NOTE: This class works even if RESPA is not applied.
-class PairHybridOverlayRespa : public PairHybridOverlay {
+class PairHybridOverlayTally : public PairHybridOverlay {
+  std::vector<std::unordered_set<std::string>> compute_tally_ids;
+  std::unordered_set<std::string> added_tallys;
  public:
   using PairHybridOverlay::PairHybridOverlay;
+
+  void settings(int narg, char **arg);
+  void modify_params(int narg, char **arg);
 
   virtual void add_tally_callback(class Compute *) override;
   virtual void del_tally_callback(class Compute *) override;
