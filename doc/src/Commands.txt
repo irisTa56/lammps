@@ -50,4 +50,3 @@ END_RST -->
 "KSpace solvers"_Commands_kspace.html  :all(b)
 
 <!-- END_HTML_ONLY -->
-
