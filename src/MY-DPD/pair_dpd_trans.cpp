@@ -22,6 +22,7 @@
 #include "pair_dpd_trans.h"
 #include "atom.h"
 #include "atom_vec.h"
+#include "comm.h"
 #include "update.h"
 #include "force.h"
 #include "neighbor.h"
@@ -29,7 +30,6 @@
 #include "random_ziggurat.h"
 #include "memory.h"
 #include "error.h"
-#include "comm_brick_dpd.h"
 
 using namespace LAMMPS_NS;
 

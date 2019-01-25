@@ -199,6 +199,8 @@ if(PKG_USER-H5MD OR PKG_USER-QMMM OR PKG_USER-SCAFACOS)
   enable_language(C)
 endif()
 
+include_directories(${LAMMPS_SOURCE_DIR})
+
 # do MPI detection after language activation, if MPI for these language is required
 find_package(MPI QUIET)
 option(BUILD_MPI "Build MPI version" ${MPI_FOUND})
@@ -369,7 +371,7 @@ if(PKG_PYTHON)
   find_package(PythonInterp REQUIRED)
   find_package(PythonLibs REQUIRED)
   add_definitions(-DLMP_PYTHON)
-  include_directories(${PYTHON_INCLUDE_DIR})
+  include_directories(BEFORE ${PYTHON_INCLUDE_DIR})
   list(APPEND LAMMPS_LINK_LIBS ${PYTHON_LIBRARY})
   if(BUILD_LIB AND BUILD_SHARED_LIBS)
     if(NOT PYTHON_INSTDIR)
@@ -1282,7 +1284,6 @@ set(LAMMPS_STYLE_HEADERS_DIR ${CMAKE_CURRENT_BINARY_DIR}/styles)
 
 GenerateStyleHeaders(${LAMMPS_STYLE_HEADERS_DIR})
 
-include_directories(${LAMMPS_SOURCE_DIR})
 include_directories(${LAMMPS_STYLE_HEADERS_DIR})
 
 ######################################
