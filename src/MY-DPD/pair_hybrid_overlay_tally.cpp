@@ -112,7 +112,7 @@ void PairHybridOverlayTally::add_tally_callback(Compute *ptr)
 {
   bool added = false;
   for (int m = 0; m < nstyles; m++) {
-    std::string tallyid = std::string(ptr->id)+std::string(keywords[m]);
+    auto tallyid = std::string(ptr->id)+std::string(keywords[m]);
     if (added_tallys.find(tallyid) == added_tallys.end()) {
       auto id_set = compute_tally_ids[m];
       if (id_set.find(std::string(ptr->id)) != id_set.end()) {
@@ -122,13 +122,14 @@ void PairHybridOverlayTally::add_tally_callback(Compute *ptr)
         if (comm->me == 0) {
           if (screen)
             fprintf(
-              screen,"> compute/tally %s is added to pair %s\n",
+              screen,"Compute/tally %s is added to pair %s\n",
               ptr->id,keywords[m]);
           if (logfile)
             fprintf(
-              logfile,"> compute/tally %s is added to pair %s\n",
+              logfile,"Compute/tally %s is added to pair %s\n",
               ptr->id,keywords[m]);
         }
+        break;
       }
     } else added = true;
   }
@@ -142,9 +143,11 @@ void PairHybridOverlayTally::add_tally_callback(Compute *ptr)
 void PairHybridOverlayTally::del_tally_callback(Compute *ptr)
 {
   for (int m = 0; m < nstyles; m++) {
-    auto id_set = compute_tally_ids[m];
-    if (id_set.find(std::string(ptr->id)) != id_set.end()) {
+    auto tallyid = std::string(ptr->id)+std::string(keywords[m]);
+    if (added_tallys.find(tallyid) != added_tallys.end()) {
       styles[m]->del_tally_callback(ptr);
+      added_tallys.erase(tallyid);
+      break;
     }
   }
 }
