@@ -62,48 +62,18 @@ void PairHybridOverlayTally::modify_params(int narg, char **arg)
       iarg = 3;
     }
 
-    // if 2nd keyword (after pair) is special:
-    // invoke modify_special() for the sub-style
+    // search only compute/tally
 
-    if (iarg < narg && strcmp(arg[iarg],"special") == 0) {
-      if (narg < iarg+5)
-        error->all(FLERR,"Illegal pair_modify special command");
-      modify_special(m,narg-iarg,&arg[iarg+1]);
-      iarg += 5;
+    for (int i = iarg; i < narg; i++) {
+      if (strcmp(arg[i],"compute/tally") == 0 && i+1 < narg) {
+        compute_tally_ids[m].insert(std::string(arg[i+1]));
+        arg[i+1] = (char*)"yes";
+        break;
+      }
     }
-
-    // if 2nd keyword (after pair) is compute/tally:
-    // set flag to register USER-TALLY computes accordingly
-
-    if (iarg < narg && strcmp(arg[iarg],"compute/tally") == 0) {
-      if (narg < iarg+2)
-        error->all(FLERR,"Illegal pair_modify compute/tally command");
-      // Only this line differs from PairHybrid::modify_params()
-      compute_tally_ids[m].insert(std::string(arg[iarg+1]));
-      iarg += 2;
-    }
-
-    // apply the remaining keywords to the base pair style itself and the
-    // sub-style except for "pair" and "special".
-    // the former is important for some keywords like "tail" or "compute"
-
-    if (narg-iarg > 0) {
-      Pair::modify_params(narg-iarg,&arg[iarg]);
-      styles[m]->modify_params(narg-iarg,&arg[iarg]);
-    }
-
-  // apply all keywords to pair hybrid itself and every sub-style
-
-  } else {
-    Pair::modify_params(narg,arg);
-    for (int m = 0; m < nstyles; m++) styles[m]->modify_params(narg,arg);
   }
 
-  // reset global compute_flag since there may have been changes
-  // to any of the substyles
-  compute_flag = 0;
-  for (int m = 0; m < nstyles; m++)
-    if (styles[m]->compute_flag) compute_flag = 1;
+  PairHybrid::modify_params(narg,arg);
 }
 
 /* ---------------------------------------------------------------------- */
