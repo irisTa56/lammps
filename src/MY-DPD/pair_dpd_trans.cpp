@@ -27,7 +27,7 @@
 #include "force.h"
 #include "neighbor.h"
 #include "neigh_list.h"
-#include "random_ziggurat.h"
+#include "random_mars.h"
 #include "memory.h"
 #include "error.h"
 
@@ -241,7 +241,7 @@ void PairDPDTrans::settings(int narg, char **arg)
 
   if (seed <= 0) error->all(FLERR,"Illegal pair_style command");
   delete random;
-  random = new RandomZiggurat(lmp,seed + comm->me);
+  random = new RanMars(lmp,seed + comm->me);
 
   // reset cutoffs that have been explicitly set
 
@@ -421,7 +421,7 @@ void PairDPDTrans::read_restart_settings(FILE *fp)
   // same seed that pair_style command initially specified
 
   if (random) delete random;
-  random = new RandomZiggurat(lmp,seed + comm->me);
+  random = new RanMars(lmp,seed + comm->me);
 }
 
 /* ----------------------------------------------------------------------
