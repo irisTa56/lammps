@@ -62,6 +62,39 @@ Random number generator:
 ## Tally computing for pair/hybrid/overlay
 
 Difference of `pair/hybrid/overlay/tally` from `pair/hybrid/overlay` is how to use `pair_modify`.
-For `pair/hybrid/overlay/tally`, the `compute/tally` keyword of `pair_modify` accepts *id* of a `compute` command. In other words, a *Compute* instance specified by its *id* is associated with a sub-style of the hybrid pair style via `compute/tally` keyword. Note that one *Compute* instance should be added to only one sub-style, whereas multiple *Compute* instances can be added to one sub-style.
+For `pair/hybrid/overlay/tally`, the `compute/tally` keyword of `pair_modify` accepts *id* of a `compute` command.
+In other words, a Compute instance can be associated with a sub-style of the hybrid pair style by using `compute/tally` keyword with *id* of the instance.
+Note that one *Compute* instance should be added to only one sub-style, whereas multiple *Compute* instances can be added to the same sub-style.
 
-For example usage, please see [examples of irisTa56/wapylmp](https://github.com/irisTa56/wapylmp).
+**Original Lammps**
+
+```
+pair_hybrid tersoff lj/cut/coul/long 12.0
+pair_modify pair tersoff compute/tally no
+compute 1 lower force/tally upper
+compute 2 left pe/tally right
+```
+
+The above example computes per-atom forces between the `lower` and `upper` group and per-atom potential energies between the `left` and `right` group for `lj/cut/coul/long` only.
+There is no way to computes forces/energies for `tersoff` simultaneously with `lj/cut/coul/long`.
+This is because the `compute/tally` keyword of `pair_modify` accepts only `yes` or `no` and affects **all** the *Compute* instances of tally computing.
+
+See also:
+
+* [pair_style hybrid command — LAMMPS documentation](https://lammps.sandia.gov/doc/pair_hybrid.html)
+* [compute force/tally command — LAMMPS documentation](https://lammps.sandia.gov/doc/compute_tally.html)
+* [pair_modify command — LAMMPS documentation](https://lammps.sandia.gov/doc/pair_modify.html)
+
+**This Package**
+
+```
+pair_hybrid tersoff lj/cut/coul/long 12.0
+pair_modify pair tersoff compute/tally 1
+pair_modify pair lj/cut/coul/long compute/tally 2
+compute 1 lower force/tally upper
+compute 2 left pe/tally right
+```
+
+The above example computes per-atom forces between the `lower` and `upper` group for `tersoff`, and per-atom potential energies between the `left` and `right` group for `lj/cut/coul/long`.
+
+For more examples of usage, please see [examples of irisTa56/wapylmp](https://github.com/irisTa56/wapylmp).
