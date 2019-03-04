@@ -67,7 +67,7 @@ void PairHybridOverlayTally::modify_params(int narg, char **arg)
     for (int i = iarg; i < narg; i++) {
       if (strcmp(arg[i],"compute/tally") == 0 && i+1 < narg) {
         compute_tally_ids[m].insert(std::string(arg[i+1]));
-        arg[i+1] = (char*)"yes";
+        arg[i+1] = (char*)"yes";  // to avoid error in PairHybrid::modify_params()
         break;
       }
     }
